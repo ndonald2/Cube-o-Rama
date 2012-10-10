@@ -95,14 +95,7 @@ void WallOBoxes::reset()
 void WallOBoxes::updateFromKinectDepths(ofxKinect & kinect, float scale)
 {
     // quantize kinect image to box faces
-    float xInc = kinect.width/_columns;
-    float yInc = kinect.height/_rows;
-    
-    for (int y=0; y<_rows; y++){
-        for (int x=0; x<_columns; x++){
-            _kinectOffsets[y*_columns + x] = scale * kinectNormalizedDepthInRegion(kinect, xInc*x, yInc*y, xInc, yInc);
-        }
-    }
+    kctGetNormalizedDepthInRegions(kinect, _kinectOffsets, _columns, _rows, scale);
 }
 
 

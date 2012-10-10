@@ -9,30 +9,20 @@
 #include "KinectUtilities.h"
 #include "ofxOpenCv.h"
 
-float kinectNormalizedDepthInRegion(ofxKinect & kinect, int x, int y, int w, int h)
+static ofxCvGrayscaleImage _tempDepthImage;
+
+void kctGetNormalizedDepthInRegions(ofxKinect & kinect, float * const result, int columns, int rows, float scale, int smoothing)
 {
-    // potentially blur the image
-    
-//    ofxCvGrayscaleImage depthImage;
-//    depthImage.setFromPixels(kinect.getDepthPixelsRef());
-//    depthImage.blur();
-    
-    unsigned char *pixels = kinect.getDepthPixels();
-    
-    x = CLAMP(x, 0, kinect.width);
-    w = CLAMP(w, 0, kinect.width - x);
-    y = CLAMP(y, 0, kinect.height);
-    h = CLAMP(h, 0, kinect.height - y);
-    
-    int index;
-    int avgDepth = 0;
-    
-    for (int ys=y; ys < y+h; ys++){
-        for (int xs=x; xs < x+w; xs++){
-            index = ys*kinect.width + xs;
-            avgDepth += (int)pixels[index];
-        }
+    _tempDepthImage.setFromPixels(kinect.getDepthPixelsRef());
+    if (smoothing > 0){
+        _tempDepthImage.blur(smoothing);
     }
+
+    // hacky but it works
+    _tempDepthImage.resize(columns, rows);
     
-    return (float)avgDepth/(255.0f*w*h);
+    unsigned char *pixels = _tempDepthImage.getPixels();
+    for (int i=0; i<rows*columns; i++){
+        result[i] = pixels[i]*scale/255.0f;
+    }
 }
