@@ -34,7 +34,7 @@ class ofApplication : public ofBaseApp{
     
         ofPoint     _windowCenter;
     
-        ofCamera   _worldCamera;
+        ofEasyCam   _worldCamera;
         ofLight     _mainLight;
         ofLight     _spotlight1;
         ofLight     _spotlight2;

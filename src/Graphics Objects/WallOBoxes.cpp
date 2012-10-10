@@ -24,6 +24,9 @@ WallOBoxes::WallOBoxes(int columns, int rows)
     _boxMaterial.setSpecularColor(ofFloatColor(1.0f,1.0f,1.0f));
     _boxMaterial.setDiffuseColor(ofFloatColor(0.1f, 0.1f, 0.1f));
     
+    _brightLight.setDiffuseColor(ofFloatColor(1.0f,1.0f,1.0f));
+    _brightLight.setPosition(0, 0, 500);
+    
     this->reset();
 }
 

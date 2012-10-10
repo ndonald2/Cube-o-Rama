@@ -50,6 +50,7 @@ private:
 
     BoxEntity       *_boxes;
     ofMaterial      _boxMaterial;
+    ofLight         _brightLight;
 
     // geometry
     int             _columns;

@@ -156,7 +156,8 @@ void ofMeshCube(float size)
 		ofScale(size, size, size);
     }
     
-    ofGetCurrentRenderer()->draw(_meshCubeVertexData,false,true,true);
+    _meshCubeVertexData.draw();
+    //ofGetCurrentRenderer()->draw(_meshCubeVertexData,false,true,true);
     
     ofPopMatrix();
     glDisable(GL_NORMALIZE);

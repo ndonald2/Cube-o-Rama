@@ -42,8 +42,9 @@ void ofApplication::setup(){
     // enable depth->video image calibration
 	_kinect.setRegistration(true);
 	_kinect.init(false, true, false);
-	_kinect.open();		// opens first available kinect
     _kinect.setDepthClipping(_clipMinMm, _clipMaxMm);
+	//_kinect.open();		// opens first available kinect
+
         
     // renderer
     ofSetFrameRate(60.0);
@@ -55,20 +56,24 @@ void ofApplication::setup(){
 
     // camera
     _worldCamera.setupPerspective(false, 60, 10, 10000.0);
+    _worldCamera.disableMouseInput();
 
     // lighting
     _mainLight.setPointLight();
     _spotlight1.setSpotlight();
     _spotlight2.setSpotlight();
     
-    _mainLight.setSpecularColor(ofColor::fromHsb(0.0f, 0.0f, 255.0f*1.0f));
-    _mainLight.setDiffuseColor(ofColor::fromHsb(0.0f, 0.0f, 255.0f*0.75f));
+    _mainLight.setSpecularColor(ofColor::fromHsb(0.0f, 0.0f, 255.0f*0.75f));
+    _mainLight.setDiffuseColor(ofColor::fromHsb(0.0f, 0.0f, 255.0f*0.5f));
+    _mainLight.setAmbientColor(ofColor::fromHsb(0.0f, 0.0f, 0.05f));
 
     _spotlight1.setDiffuseColor(ofColor(0.0f, 255.0f, 0.0f));
     _spotlight1.setSpecularColor(ofColor(220.0f, 255.0f, 220.0f));
+    _spotlight1.setAmbientColor(ofColor::fromHsb(0.0f, 0.0f, 0.05f));
     
     _spotlight2.setDiffuseColor(ofColor(115.0f, 0.0f, 255.0f));
     _spotlight2.setSpecularColor(ofColor(250.0f, 227.0f, 255.0f));
+    _spotlight2.setAmbientColor(ofColor::fromHsb(0.0f, 0.0f, 0.05f));
     
     // box geometry
     setBoxColumns(40);
@@ -81,14 +86,14 @@ void ofApplication::update(){
     // ==================
     //   Update Kinect
     // ==================
-    
-    _kinect.update();
-    
-    if (_kinect.isFrameNew())
-    {
-        _wallOBoxes.updateFromKinectDepths(_kinect, _boxSize*20.0f);
+    if (_kinect.isConnected()){
+        _kinect.update();
+        
+        if (_kinect.isFrameNew())
+        {
+            _wallOBoxes.updateFromKinectDepths(_kinect, _boxSize*20.0f);
+        }
     }
-
 }
 
 //--------------------------------------------------------------
@@ -104,9 +109,11 @@ void ofApplication::draw(){
     
     _worldCamera.begin();
     
-    _worldCamera.resetTransform();
-    _worldCamera.setPosition(cosf(timePhase*0.08f)*wallSize.x*0.3f, sinf(timePhase*0.04f)*wallSize.y*0.4f, 3000.0f);
-    _worldCamera.lookAt(ofVec3f(0,0,0));
+    if (!_debug){
+        _worldCamera.resetTransform();
+        _worldCamera.setPosition(cosf(timePhase*0.08f)*wallSize.x*0.3f, sinf(timePhase*0.04f)*wallSize.y*0.4f, 3000.0f);
+        _worldCamera.lookAt(ofVec3f(0,0,0));
+    }
     
     if (_debug){
         ofSetColor(220.0f,220.0f,220.0f);
@@ -153,6 +160,8 @@ void ofApplication::draw(){
 //    }
     
     _mainLight.disable();
+    _spotlight1.disable();
+    _spotlight2.disable();
     ofDisableLighting();
     
     // world camera end
@@ -186,6 +195,21 @@ void ofApplication::keyPressed(int key){
             
         case 'd':
             _debug = !_debug;
+            if (_debug){
+                _worldCamera.enableMouseInput();
+            }
+            else{
+                _worldCamera.disableMouseInput();
+            }
+            _worldCamera.reset();
+            _worldCamera.setDistance(3000.0f);
+            _worldCamera.lookAt(ofVec3f(0,0,0));
+            break;
+            
+        case 'o':
+            if (!_kinect.isConnected()){
+                _kinect.open();
+            }
             break;
             
         case 'a':
