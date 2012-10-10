@@ -8,6 +8,7 @@
 
 #include "WallOBoxes.h"
 #include "KinectUtilities.h"
+#include "MeshCube.h"
 
 WallOBoxes::WallOBoxes(int columns, int rows)
 {
@@ -122,6 +123,7 @@ void WallOBoxes::setNumberOfBoxes(int columns, int rows)
 void WallOBoxes::setDefaultBoxSize(float size)
 {
     _boxSize = size >= 1.0f ? size : 1.0f;
+    ofMeshCubeSetResolution(1);
     this->reset();
 }
 

@@ -9,6 +9,7 @@
 #include "BoxEntity.h"
 #include "ofGraphics.h"
 #include "ofMath.h"
+#include "MeshCube.h"
 
 BoxEntity::BoxEntity(const ofPoint &startingPosition, float size)
 {
@@ -61,7 +62,8 @@ void BoxEntity::draw(const ofVec3f & translation, const ofQuaternion & rotation)
         ofNoFill();
     }
     
-    ofBox(_size);
+    ofMeshCube(_size);
+    //ofBox(_size);
     
     ofPopMatrix();
 }
