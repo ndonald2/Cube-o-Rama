@@ -7,7 +7,7 @@
 //
 
 #include "WallOBoxes.h"
-#include "ofGraphics.h"
+#include "KinectUtilities.h"
 
 WallOBoxes::WallOBoxes(int columns, int rows)
 {
@@ -17,6 +17,12 @@ WallOBoxes::WallOBoxes(int columns, int rows)
     _boxSize = 50.0f;
     _boxSpacing = 50.0f;
     _orientation = ofQuaternion(0.0, 0.0, 0.0, 1.0);
+    _boxes = NULL;
+    _kinectOffsets = NULL;
+    
+    _boxMaterial.setSpecularColor(ofFloatColor(1.0f,1.0f,1.0f));
+    _boxMaterial.setDiffuseColor(ofFloatColor(0.1f, 0.1f, 0.1f));
+    
     this->reset();
 }
 
@@ -29,11 +35,6 @@ WallOBoxes::~WallOBoxes()
     }
 }
 
-void WallOBoxes::update()
-{
-    // update animations here
-    
-}
 
 void WallOBoxes::draw()
 {
@@ -48,10 +49,10 @@ void WallOBoxes::draw()
     ofTranslate(-_wallSize.x/2.0f, _wallSize.y/2.0f);
     
     // draw boxes
-    for (int x=0; x<_columns; x++){
-        for (int y=0; y<_rows; y++){
-            this->getBoxAtPosition(x, y)->draw();
-        }
+    for (int i=0; i<_rows*_columns; i++){
+        //_boxMaterial.begin();
+        _boxes[i].draw(ofVec3f(0.0f, 0.0f, _kinectOffsets[i]), ofQuaternion());
+        //_boxMaterial.end();
     }
     
     ofPopMatrix();
@@ -65,20 +66,41 @@ void WallOBoxes::reset()
         _boxes = NULL;
     }
     
-    _boxes = new BoxEntity[_columns*_rows];
+    if (_kinectOffsets){
+        delete [] _kinectOffsets;
+        _kinectOffsets = NULL;
+    }
+    
+    int nBoxes = _columns*_rows;
+    _boxes = new BoxEntity[nBoxes];
+    _kinectOffsets = new float[nBoxes];
     
     float interBoxSpacing = _boxSize + _boxSpacing;
     _wallSize = ofPoint(_columns*interBoxSpacing - _boxSpacing, _rows*interBoxSpacing - _boxSpacing);
     
-    for (int x=0; x<_columns; x++){
-        for (int y=0; y<_rows; y++){
-            
+    for (int y=0; y<_rows; y++){
+        for (int x=0; x<_columns; x++){
             BoxEntity *box = this->getBoxAtPosition(x, y);
             box->setPosition(x*interBoxSpacing, -y*interBoxSpacing, 0.0f);
             box->setSize(_boxSize);
+            _kinectOffsets[y*_columns + x] = 0.0f;
         }
     }
 }
+
+void WallOBoxes::updateFromKinectDepths(ofxKinect & kinect, float scale)
+{
+    // quantize kinect image to box faces
+    float xInc = kinect.width/_columns;
+    float yInc = kinect.height/_rows;
+    
+    for (int y=0; y<_rows; y++){
+        for (int x=0; x<_columns; x++){
+            _kinectOffsets[y*_columns + x] = scale * kinectNormalizedDepthInRegion(kinect, xInc*x, yInc*y, xInc, yInc);
+        }
+    }
+}
+
 
 void WallOBoxes::setCenterPosition(const ofPoint &center)
 {

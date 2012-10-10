@@ -36,12 +36,19 @@ void BoxEntity::update()
 
 void BoxEntity::draw()
 {
+    this->draw(ofVec3f(), ofQuaternion());
+}
+
+void BoxEntity::draw(const ofVec3f & translation, const ofQuaternion & rotation)
+{
     ofPushMatrix();
     ofTranslate(_position);
+    ofTranslate(translation);
     
     float rotationAmt;
     ofVec3f rotationAngle;
-    _currentOrientation.getRotate(rotationAmt, rotationAngle);
+    ofQuaternion combinedRotation = _currentOrientation*rotation;
+    combinedRotation.getRotate(rotationAmt, rotationAngle);
     
     ofRotate(rotationAmt, rotationAngle.x, rotationAngle.y, rotationAngle.z);
     

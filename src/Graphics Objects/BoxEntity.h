@@ -10,6 +10,9 @@
 
 #include "ofBaseTypes.h"
 #include "ofVectorMath.h"
+#include <map>
+
+using std::map;
 
 class BoxEntity{
     
@@ -22,6 +25,7 @@ public:
     
     void update();
     void draw();
+    void draw(const ofVec3f & translation, const ofQuaternion & rotation);
 
     bool getfilled() const { return _filled; };
     void setFilled(bool filled) { _filled = filled; };
@@ -46,6 +50,7 @@ private:
 
     // appearance
     ofFloatColor _color;
+    map<string, ofColor> _colors;
     bool _filled;
 
 };

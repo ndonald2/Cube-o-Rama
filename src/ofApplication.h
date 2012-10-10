@@ -3,6 +3,9 @@
 #include "ofMain.h"
 #include "WallOBoxes.h"
 
+#include "ofxOpenCv.h"
+#include "ofxKinect.h"
+
 class ofApplication : public ofBaseApp{
 	public:
 		void setup();
@@ -29,11 +32,15 @@ class ofApplication : public ofBaseApp{
     
         bool  _debug;
     
-        ofPoint     windowCenter;
+        ofPoint     _windowCenter;
     
-        ofEasyCam   worldCamera;
-        ofLight     mainLight;
-        ofImage     texImage;
+        ofEasyCam   _worldCamera;
+        ofLight     _mainLight;
     
-        WallOBoxes  wallOBoxes;
+        WallOBoxes  _wallOBoxes;
+    
+        // kinect
+        ofxKinect       _kinect;
+        float           _clipMinMm;
+        float           _clipMaxMm;
 };
