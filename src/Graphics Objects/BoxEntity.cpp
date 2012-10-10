@@ -62,7 +62,6 @@ void BoxEntity::draw(const ofVec3f & translation, const ofQuaternion & rotation)
         ofNoFill();
     }
     
-    //ofMeshCube(_size);
     ofBox(_size);
     
     ofPopMatrix();

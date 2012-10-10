@@ -7,9 +7,16 @@
 //
 
 #include "KinectUtilities.h"
+#include "ofxOpenCv.h"
 
 float kinectNormalizedDepthInRegion(ofxKinect & kinect, int x, int y, int w, int h)
 {
+    // potentially blur the image
+    
+//    ofxCvGrayscaleImage depthImage;
+//    depthImage.setFromPixels(kinect.getDepthPixelsRef());
+//    depthImage.blur();
+    
     unsigned char *pixels = kinect.getDepthPixels();
     
     x = CLAMP(x, 0, kinect.width);
