@@ -25,12 +25,13 @@ public:
     void reset();
     
     // update methods
-    void updateFromKinectDepths(ofxKinect & kinect, float scale);
+    void updateFromKinectDepths(ofxKinect & kinect);
     
     // geometry
     int getNumberOfBoxes() { return _columns*_rows; };
     int getBoxRows() { return _rows; };
     int getBoxColumns() { return _columns; };
+    
     void setNumberOfBoxes(int columns, int rows);
     
     void setCenterPosition(const ofPoint &center);
@@ -40,6 +41,8 @@ public:
     
     const ofPoint & getWallSize() { return _wallSize; };
 
+    void setKinectPositionScale(float scale) { _kinectPositionScale = scale; };
+    
     // effects
     void highlightBoxUnderCursor(ofCamera &cam, ofVec2f mouseCoord);
 
@@ -62,6 +65,7 @@ private:
     ofQuaternion    _orientation;
 
     // modifiers
+    float           _kinectPositionScale;
     float           *_kinectOffsets;
 
 

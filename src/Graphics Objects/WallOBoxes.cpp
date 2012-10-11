@@ -56,7 +56,8 @@ void WallOBoxes::draw()
     // draw boxes
     for (int i=0; i<_rows*_columns; i++){
         _boxMaterial.begin();
-        _boxes[i].draw(ofVec3f(0.0f, 0.0f, _kinectOffsets[i]), ofQuaternion());
+        _boxes[i].setColor(ofColor::fromHsb(_kinectOffsets[i]*100, 255.0f*_kinectOffsets[i], 255.0f));
+        _boxes[i].draw(ofVec3f(0.0f, 0.0f, _kinectOffsets[i]*_kinectPositionScale), ofQuaternion());
         _boxMaterial.end();
     }
     
@@ -93,10 +94,10 @@ void WallOBoxes::reset()
     }
 }
 
-void WallOBoxes::updateFromKinectDepths(ofxKinect & kinect, float scale)
+void WallOBoxes::updateFromKinectDepths(ofxKinect & kinect)
 {
     // quantize kinect image to box faces
-    kctGetNormalizedDepthInRegions(kinect, _kinectOffsets, _columns, _rows, scale, 2);
+    kctGetNormalizedDepthInRegions(kinect, _kinectOffsets, _columns, _rows, 2);
 }
 
 

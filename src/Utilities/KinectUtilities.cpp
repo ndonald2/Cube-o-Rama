@@ -12,7 +12,7 @@
 static ofxCvGrayscaleImage _depthImage;
 static ofxCvGrayscaleImage _resizedDepthImage;
 
-void kctGetNormalizedDepthInRegions(ofxKinect & kinect, float * const result, int columns, int rows, float scale, int smoothing)
+void kctGetNormalizedDepthInRegions(ofxKinect & kinect, float * const result, int columns, int rows, int smoothing)
 {
     
     if (_depthImage.width != kinect.width || _depthImage.height != kinect.height){
@@ -35,6 +35,6 @@ void kctGetNormalizedDepthInRegions(ofxKinect & kinect, float * const result, in
     
     unsigned char *pixels = _resizedDepthImage.getPixels();
     for (int i=0; i<rows*columns; i++){
-        result[i] = pixels[i]*scale/255.0f;
+        result[i] = pixels[i]/255.0f;
     }
 }

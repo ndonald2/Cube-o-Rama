@@ -11,4 +11,4 @@
 #include "ofBaseTypes.h"
 #include "ofxKinect.h"
 
-void kctGetNormalizedDepthInRegions(ofxKinect & kinect, float * const result, int columns, int rows, float scale = 1.0f, int smoothing = 0);
+void kctGetNormalizedDepthInRegions(ofxKinect & kinect, float * const result, int columns, int rows, int smoothing = 0);

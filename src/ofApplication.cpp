@@ -47,7 +47,6 @@ void ofApplication::setup(){
     _kinect.setDepthClipping(_clipMinMm, _clipMaxMm);
 	//_kinect.open();		// opens first available kinect
 
-        
     // renderer
     ofSetFrameRate(60.0);
     ofSetVerticalSync(true);
@@ -77,6 +76,7 @@ void ofApplication::setup(){
     
     // box geometry
     setBoxColumns(40);
+    _wallOBoxes.setKinectPositionScale(750.0f);
     
 }
 
@@ -91,7 +91,7 @@ void ofApplication::update(){
         
         if (_kinect.isFrameNew())
         {
-            _wallOBoxes.updateFromKinectDepths(_kinect, 500.0f);
+            _wallOBoxes.updateFromKinectDepths(_kinect);
         }
     }
 }
