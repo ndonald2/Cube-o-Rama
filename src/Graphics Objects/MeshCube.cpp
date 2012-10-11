@@ -10,26 +10,28 @@
 #include "ofConstants.h"
 #include "ofUtils.h"
 #include "ofGraphics.h"
+#include "ofVbo.h"
 #include "ofVboMesh.h"
 
-static ofVboMesh _meshCubeVertexData;
+static ofMesh _meshCubeVertexData;
+static ofVbo _meshCubeVBO;
 
 static const ofVec3f sp[6] = {
-    ofVec3f(-0.5, 0.5, -0.5),
-    ofVec3f(0.5, 0.5, 0.5),
-    ofVec3f(0.5, 0.5, 0.5),
-    ofVec3f(-0.5, 0.5, -0.5),
-    ofVec3f(-0.5, 0.5, 0.5),
-    ofVec3f(0.5, -0.5, 0.5)
+    ofVec3f(-0.5, 0.5, 0.5),   // FRONT - left top front
+    ofVec3f(0.5, 0.5, 0.5),    // RIGHT - right top front
+    ofVec3f(0.5, 0.5, -0.5),     // BACK  - right top back
+    ofVec3f(-0.5, 0.5, -0.5),    // LEFT  - left top back
+    ofVec3f(-0.5, 0.5, -0.5),    // TOP   - left top back
+    ofVec3f(-0.5, -0.5, 0.5)     // BOTTOM - left bottom front
 };
 
 static const ofVec3f nrm[6] = {
-    ofVec3f(0,0,-1),
-    ofVec3f(+1,0,0),
-    ofVec3f(0,0,+1),
-    ofVec3f(-1,0,0),
-    ofVec3f(0,+1,0),
-    ofVec3f(0,-1,0)
+    ofVec3f(0,0,+1),    // forward
+    ofVec3f(+1,0,0),    // right
+    ofVec3f(0,0,-1),    // back
+    ofVec3f(-1,0,0),    // left
+    ofVec3f(0,+1,0),    // up
+    ofVec3f(0,-1,0)     // down
 };
 
 void ofMeshCubeSetResolution(int resolution)
@@ -50,21 +52,21 @@ void ofMeshCubeSetResolution(int resolution)
     // increment vectors for each face
     
     const ofVec3f icv[6] = {
-        ofVec3f(inc, 0, 0),
-        ofVec3f(0, 0, -inc),
-        ofVec3f(-inc, 0, 0),
-        ofVec3f(0, 0, inc),
-        ofVec3f(0, 0, -inc),
-        ofVec3f(0, 0, -inc)
+        ofVec3f(inc, 0, 0),     // right
+        ofVec3f(0, 0, -inc),     // back
+        ofVec3f(-inc, 0, 0),    // left
+        ofVec3f(0, 0, inc),    // forward
+        ofVec3f(inc, 0, 0),     // right
+        ofVec3f(inc, 0, 0)     // right
     };
     
     const ofVec3f irv[6] = {
-        ofVec3f(0, -inc, 0),
-        ofVec3f(0, -inc, 0),
-        ofVec3f(0, -inc, 0),
-        ofVec3f(0, -inc, 0),
-        ofVec3f(inc, 0, 0),
-        ofVec3f(-inc, 0, 0)
+        ofVec3f(0, -inc, 0),    // down
+        ofVec3f(0, -inc, 0),    // down
+        ofVec3f(0, -inc, 0),    // down
+        ofVec3f(0, -inc, 0),    // down
+        ofVec3f(0, 0, inc),    // forward
+        ofVec3f(0, 0, -inc)      // back
     };
 
     
@@ -98,13 +100,13 @@ void ofMeshCubeSetResolution(int resolution)
         for (int sfr=0; sfr<res; sfr++){
             for (int sfc=0; sfc<res; sfc++){
 
-                indices[ict++] = (ofIndexType)(fvo + sfr*(res+1) + sfc);
-                indices[ict++] = (ofIndexType)(fvo + (sfr+1)*(res+1) + sfc);
-                indices[ict++] = (ofIndexType)(fvo + (sfr+1)*(res+1) + (sfc+1));
+                indices[ict++] = (ofIndexType)(fvo + sfr*(res+1) + sfc);        // top left
+                indices[ict++] = (ofIndexType)(fvo + (sfr+1)*(res+1) + sfc);    // bottom left
+                indices[ict++] = (ofIndexType)(fvo + sfr*(res+1) + (sfc+1));    // top right
 
-                indices[ict++] = (ofIndexType)(fvo + sfr*(res+1) + sfc);
-                indices[ict++] = (ofIndexType)(fvo + sfr*(res+1) + (sfc+1));
-                indices[ict++] = (ofIndexType)(fvo + (sfr+1)*(res+1) + (sfc+1));
+                indices[ict++] = (ofIndexType)(fvo + (sfr+1)*(res+1) + sfc);        // bottom left
+                indices[ict++] = (ofIndexType)(fvo + (sfr+1)*(res+1) + (sfc+1));    // bottom right
+                indices[ict++] = (ofIndexType)(fvo + sfr*(res+1) + (sfc+1));        // top right
 
             }
         }
@@ -115,8 +117,21 @@ void ofMeshCubeSetResolution(int resolution)
     _meshCubeVertexData.addNormals(normals, nVertices);
     _meshCubeVertexData.addTexCoords(tex, nVertices);
     _meshCubeVertexData.addIndices(indices, nIndices);
-    _meshCubeVertexData.setMode(OF_PRIMITIVE_TRIANGLES);
-    _meshCubeVertexData.setUsage(GL_STATIC_DRAW);
+
+    // shorthand references
+    ofMesh & mesh = _meshCubeVertexData;
+    ofVbo & vbo = _meshCubeVBO;
+    
+    int usage = GL_STATIC_DRAW;
+    
+    vbo.clear();
+    if (!vbo.getIsAllocated()){
+        vbo.setVertexData(mesh.getVerticesPointer(), mesh.getNumVertices(), usage);
+        vbo.setNormalData(mesh.getNormalsPointer(), mesh.getNumNormals(), usage);
+        vbo.setTexCoordData(mesh.getTexCoordsPointer(), mesh.getNumTexCoords(), usage);
+        vbo.setIndexData(mesh.getIndexPointer(), mesh.getNumIndices(), usage);
+    }
+
     
     // cleanup
     delete [] vertices;
@@ -156,9 +171,13 @@ void ofMeshCube(float size)
 		ofScale(size, size, size);
     }
     
-    _meshCubeVertexData.draw();
-    //ofGetCurrentRenderer()->draw(_meshCubeVertexData,false,true,true);
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+    _meshCubeVBO.drawElements(GL_TRIANGLES, _meshCubeVertexData.getNumIndices());
     
     ofPopMatrix();
+    
+    glDisable(GL_CULL_FACE);
+    
     glDisable(GL_NORMALIZE);
 }

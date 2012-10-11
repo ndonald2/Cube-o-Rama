@@ -27,6 +27,8 @@ WallOBoxes::WallOBoxes(int columns, int rows)
     _brightLight.setDiffuseColor(ofFloatColor(1.0f,1.0f,1.0f));
     _brightLight.setPosition(0, 0, 500);
     
+    ofMeshCubeSetResolution(1);
+    
     this->reset();
 }
 
