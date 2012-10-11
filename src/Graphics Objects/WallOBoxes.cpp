@@ -21,8 +21,8 @@ WallOBoxes::WallOBoxes(int columns, int rows)
     _boxes = NULL;
     _kinectOffsets = NULL;
     
+    _boxMaterial.setShininess(100);
     _boxMaterial.setSpecularColor(ofFloatColor(1.0f,1.0f,1.0f));
-    _boxMaterial.setDiffuseColor(ofFloatColor(0.1f, 0.1f, 0.1f));
     
     _brightLight.setDiffuseColor(ofFloatColor(1.0f,1.0f,1.0f));
     _brightLight.setPosition(0, 0, 500);
@@ -41,7 +41,6 @@ WallOBoxes::~WallOBoxes()
     }
 }
 
-
 void WallOBoxes::draw()
 {
     ofPushMatrix();
@@ -56,9 +55,9 @@ void WallOBoxes::draw()
     
     // draw boxes
     for (int i=0; i<_rows*_columns; i++){
-        //_boxMaterial.begin();
+        _boxMaterial.begin();
         _boxes[i].draw(ofVec3f(0.0f, 0.0f, _kinectOffsets[i]), ofQuaternion());
-        //_boxMaterial.end();
+        _boxMaterial.end();
     }
     
     ofPopMatrix();

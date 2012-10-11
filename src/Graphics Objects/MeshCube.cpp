@@ -162,7 +162,6 @@ void ofMeshCube(float size)
         ofMeshCubeSetResolution(10);
     }
     
-    glEnable(GL_NORMALIZE);
     ofPushMatrix();
 	if(ofGetCoordHandedness() == OF_LEFT_HANDED){
 		ofScale(size, size, -size);
@@ -171,13 +170,18 @@ void ofMeshCube(float size)
 		ofScale(size, size, size);
     }
     
+    glEnable(GL_NORMALIZE);
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
+    glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
+    glEnable(GL_POLYGON_SMOOTH);
+    
     _meshCubeVBO.drawElements(GL_TRIANGLES, _meshCubeVertexData.getNumIndices());
     
-    ofPopMatrix();
-    
+    glDisable(GL_POLYGON_SMOOTH);
     glDisable(GL_CULL_FACE);
-    
     glDisable(GL_NORMALIZE);
+
+    ofPopMatrix();
+
 }

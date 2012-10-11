@@ -18,7 +18,7 @@ void ofApplication::setBoxColumns(int boxColumns)
     _wallOBoxes.setDefaultBoxSize(_boxSize);
     _wallOBoxes.setBoxSpacing(_boxSize*0.5f);
     
-    _mainLight.setPosition(0, 0, 800.0f);
+    _mainLight.setPosition(0, 0, 2000.0f);
     
     const ofPoint & wallSize = _wallOBoxes.getWallSize();
     _spotlight1.setPosition(-wallSize.x*0.5f, wallSize.y*0.5f, 1500.0f);
@@ -52,6 +52,7 @@ void ofApplication::setup(){
     ofSetFrameRate(60.0);
     ofSetVerticalSync(true);
     ofSetSmoothLighting(true);
+    ofEnableSmoothing();
     
     // geometry
     _windowCenter = ofPoint(ofGetWidth()/2.0f, ofGetHeight()/2.0f);
