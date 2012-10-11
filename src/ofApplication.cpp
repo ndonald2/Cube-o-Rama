@@ -2,6 +2,8 @@
 #include "BoxEntity.h"
 #include "KinectUtilities.h"
 
+#define CAM_RADIUS  3000.0f
+
 void ofApplication::setBoxColumns(int boxColumns)
 {
     int cols = boxColumns < 1 ? 1 : boxColumns;
@@ -16,14 +18,14 @@ void ofApplication::setBoxColumns(int boxColumns)
     _wallOBoxes.setDefaultBoxSize(_boxSize);
     _wallOBoxes.setBoxSpacing(_boxSize*0.5f);
     
-    _mainLight.setPosition(0, _wallOBoxes.getWallSize().y*0.4, 250.0f);
+    _mainLight.setPosition(0, 0, 800.0f);
     
     const ofPoint & wallSize = _wallOBoxes.getWallSize();
-    _spotlight1.setPosition(-wallSize.x*0.5f, wallSize.y*0.5f, 1000.0f);
+    _spotlight1.setPosition(-wallSize.x*0.5f, wallSize.y*0.5f, 1500.0f);
     _spotlight1.setSpotConcentration(45);
     _spotlight1.setSpotlightCutOff(15);
     
-    _spotlight2.setPosition(wallSize.x*0.5f, wallSize.y*0.5f, 1000.0f);
+    _spotlight2.setPosition(wallSize.x*0.5f, wallSize.y*0.5f, 1500.0f);
     _spotlight2.setSpotConcentration(45);
     _spotlight2.setSpotlightCutOff(15);
 
@@ -65,15 +67,12 @@ void ofApplication::setup(){
     
     _mainLight.setSpecularColor(ofColor::fromHsb(0.0f, 0.0f, 255.0f*0.75f));
     _mainLight.setDiffuseColor(ofColor::fromHsb(0.0f, 0.0f, 255.0f*0.5f));
-    _mainLight.setAmbientColor(ofColor::fromHsb(0.0f, 0.0f, 0.05f));
 
     _spotlight1.setDiffuseColor(ofColor(0.0f, 255.0f, 0.0f));
     _spotlight1.setSpecularColor(ofColor(220.0f, 255.0f, 220.0f));
-    _spotlight1.setAmbientColor(ofColor::fromHsb(0.0f, 0.0f, 0.05f));
     
     _spotlight2.setDiffuseColor(ofColor(115.0f, 0.0f, 255.0f));
     _spotlight2.setSpecularColor(ofColor(250.0f, 227.0f, 255.0f));
-    _spotlight2.setAmbientColor(ofColor::fromHsb(0.0f, 0.0f, 0.05f));
     
     // box geometry
     setBoxColumns(40);
@@ -91,7 +90,7 @@ void ofApplication::update(){
         
         if (_kinect.isFrameNew())
         {
-            _wallOBoxes.updateFromKinectDepths(_kinect, _boxSize*20.0f);
+            _wallOBoxes.updateFromKinectDepths(_kinect, 500.0f);
         }
     }
 }
@@ -111,7 +110,10 @@ void ofApplication::draw(){
     
     if (!_debug){
         _worldCamera.resetTransform();
-        _worldCamera.setPosition(cosf(timePhase*0.08f)*wallSize.x*0.3f, sinf(timePhase*0.04f)*wallSize.y*0.4f, 3000.0f);
+        float camAngle = HALF_PI*sinf(timePhase*0.05f)/2.0f;
+        ofVec3f camPosition = ofVec3f(sinf(camAngle)*CAM_RADIUS, sinf(timePhase*0.04f)*wallSize.y*0.4f, cosf(camAngle)*CAM_RADIUS);
+        _worldCamera.setPosition(camPosition);
+        //_worldCamera.setPosition(cosf(timePhase*0.08f)*wallSize.x*0.3f, sinf(timePhase*0.04f)*wallSize.y*0.4f, 3000.0f);
         _worldCamera.lookAt(ofVec3f(0,0,0));
     }
     
@@ -210,14 +212,6 @@ void ofApplication::keyPressed(int key){
             if (!_kinect.isConnected()){
                 _kinect.open();
             }
-            break;
-            
-        case 'a':
-            _mainLight.setPosition(0, 0, _mainLight.getPosition().z - 50.0f);
-            break;
-            
-        case 'z':
-            _mainLight.setPosition(0, 0, _mainLight.getPosition().z + 50.0f);
             break;
             
         case ',':
