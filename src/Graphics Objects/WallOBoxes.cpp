@@ -56,7 +56,7 @@ void WallOBoxes::draw()
     // draw boxes
     for (int i=0; i<_rows*_columns; i++){
         _boxMaterial.begin();
-        _boxes[i].setColor(ofColor::fromHsb(_kinectOffsets[i]*100, 255.0f*_kinectOffsets[i], 255.0f));
+        _boxes[i].setColor(ofColor::fromHsb((1.0f-_kinectOffsets[i])*100, 255.0f*_kinectOffsets[i], 255.0f));
         _boxes[i].draw(ofVec3f(0.0f, 0.0f, _kinectOffsets[i]*_kinectPositionScale), ofQuaternion());
         _boxMaterial.end();
     }

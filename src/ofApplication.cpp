@@ -83,6 +83,9 @@ void ofApplication::setup(){
 //--------------------------------------------------------------
 void ofApplication::update(){
 
+    float elapsedTime = ofGetElapsedTimef();
+    float timePhase = elapsedTime*2.0*M_PI;
+    
     // ==================
     //   Update Kinect
     // ==================
@@ -94,21 +97,12 @@ void ofApplication::update(){
             _wallOBoxes.updateFromKinectDepths(_kinect);
         }
     }
-}
-
-//--------------------------------------------------------------
-void ofApplication::draw(){
     
-    float elapsedTime = ofGetElapsedTimef();
-    float timePhase = elapsedTime*2.0*M_PI;
-    
-    glEnable(GL_DEPTH_TEST);
-    ofBackground(10);
-    
+    // ================
+    //  Update cam/lights
+    // ==================
     static const ofPoint & wallSize = _wallOBoxes.getWallSize();
-    
-    _worldCamera.begin();
-    
+
     if (!_debug){
         _worldCamera.resetTransform();
         float camAngle = HALF_PI*sinf(timePhase*0.05f)/2.0f;
@@ -118,6 +112,21 @@ void ofApplication::draw(){
         _worldCamera.lookAt(ofVec3f(0,0,0));
     }
     
+    _worldCamera.begin();
+    _spotlight1.lookAt(ofVec3f(cosf(0.4f*timePhase)*wallSize.x*0.4f, sinf(0.2f*timePhase)*wallSize.y*0.4f, 0.0f), ofVec3f(0,1,0));
+    _spotlight2.lookAt(ofVec3f(-cosf(0.4f*timePhase)*wallSize.x*0.4f, sinf(0.2f*timePhase)*wallSize.y*0.4f, 0.0f), ofVec3f(0,1,0));
+    _worldCamera.end();
+}
+
+//--------------------------------------------------------------
+void ofApplication::draw(){
+
+    
+    glEnable(GL_DEPTH_TEST);
+    ofBackground(10);
+        
+    _worldCamera.begin();
+    
     if (_debug){
         ofSetColor(220.0f,220.0f,220.0f);
         ofSphere(_mainLight.getPosition(), 20);
@@ -126,10 +135,6 @@ void ofApplication::draw(){
         ofSetColor(_spotlight2.getDiffuseColor());
         ofSphere(_spotlight2.getPosition(), 20);
     }
-    
-    
-    _spotlight1.lookAt(ofVec3f(cosf(0.4f*timePhase)*wallSize.x*0.4f, sinf(0.2f*timePhase)*wallSize.y*0.4f, 0.0f), ofVec3f(0,1,0));
-    _spotlight2.lookAt(ofVec3f(-cosf(0.4f*timePhase)*wallSize.x*0.4f, sinf(0.2f*timePhase)*wallSize.y*0.4f, 0.0f), ofVec3f(0,1,0));
 
     _mainLight.enable();
     _spotlight1.enable();
