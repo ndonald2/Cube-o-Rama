@@ -34,15 +34,23 @@ class ofApplication : public ofBaseApp{
     
         ofPoint     _windowCenter;
     
+        // cam/lighting
         ofEasyCam   _worldCamera;
         ofLight     _mainLight;
-        ofLight     _spotlight1;
-        ofLight     _spotlight2;
     
+        // 3d objects
         WallOBoxes  _wallOBoxes;
+    
+        // GL
+        ofFbo       _wallFbo;
+        ofFbo       _reflectFbo;
     
         // kinect
         ofxKinect       _kinect;
         float           _clipMinMm;
         float           _clipMaxMm;
+    
+        void    positionCamera();
+        void    positionLights();
+        void    renderScene();
 };

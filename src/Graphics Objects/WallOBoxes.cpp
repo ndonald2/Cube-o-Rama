@@ -8,7 +8,7 @@
 
 #include "WallOBoxes.h"
 #include "KinectUtilities.h"
-#include "MeshCube.h"
+#include "MeshObjects.h"
 
 WallOBoxes::WallOBoxes(int columns, int rows)
 {
@@ -51,12 +51,13 @@ void WallOBoxes::draw()
     // rotate
     
     // translate to top left box
-    ofTranslate(-_wallSize.x/2.0f, _wallSize.y/2.0f);
-    
+    ofTranslate(-(_wallSize.x/2.0f - _boxSize/2.0f), _wallSize.y/2.0f - _boxSize/2.0f);
+        
     // draw boxes
     for (int i=0; i<_rows*_columns; i++){
+        ofColor materialColor = ofColor::fromHsb((1.0f-_kinectOffsets[i])*100, CLAMP(_kinectOffsets[i],0.0f,0.5f)*2.0f*255, 255, 255);
         _boxMaterial.begin();
-        _boxes[i].setColor(ofColor::fromHsb((1.0f-_kinectOffsets[i])*100, 255.0f*_kinectOffsets[i], 255.0f));
+        _boxes[i].setColor(materialColor);
         _boxes[i].draw(ofVec3f(0.0f, 0.0f, _kinectOffsets[i]*_kinectPositionScale), ofQuaternion());
         _boxMaterial.end();
     }

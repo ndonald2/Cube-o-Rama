@@ -9,7 +9,7 @@
 #include "BoxEntity.h"
 #include "ofGraphics.h"
 #include "ofMath.h"
-#include "MeshCube.h"
+#include "MeshObjects.h"
 
 BoxEntity::BoxEntity(const ofPoint &startingPosition, float size)
 {

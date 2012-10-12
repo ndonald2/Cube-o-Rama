@@ -17,18 +17,6 @@ void ofApplication::setBoxColumns(int boxColumns)
     _wallOBoxes.setNumberOfBoxes(_boxColumns, _boxRows);
     _wallOBoxes.setDefaultBoxSize(_boxSize);
     _wallOBoxes.setBoxSpacing(_boxSize*0.5f);
-    
-    _mainLight.setPosition(0, 0, 2000.0f);
-    
-    const ofPoint & wallSize = _wallOBoxes.getWallSize();
-    _spotlight1.setPosition(-wallSize.x*0.5f, wallSize.y*0.5f, 1500.0f);
-    _spotlight1.setSpotConcentration(45);
-    _spotlight1.setSpotlightCutOff(15);
-    
-    _spotlight2.setPosition(wallSize.x*0.5f, wallSize.y*0.5f, 1500.0f);
-    _spotlight2.setSpotConcentration(45);
-    _spotlight2.setSpotlightCutOff(15);
-
 }
 
 //--------------------------------------------------------------
@@ -52,6 +40,21 @@ void ofApplication::setup(){
     ofSetVerticalSync(true);
     ofSetSmoothLighting(true);
     ofEnableSmoothing();
+    ofEnableAlphaBlending();
+    
+    // framebuffers
+    ofFbo::Settings fbosettings;
+    fbosettings.width = ofGetWidth();
+    fbosettings.height = ofGetHeight();
+    fbosettings.numColorbuffers = 1;
+    fbosettings.useDepth = true;
+    fbosettings.textureTarget = GL_TEXTURE_RECTANGLE_ARB;
+    fbosettings.internalformat = GL_RGBA;
+    _wallFbo.allocate(fbosettings);
+    
+    fbosettings.width /= 2;
+    fbosettings.height /= 2;
+    _reflectFbo.allocate(fbosettings);
     
     // geometry
     _windowCenter = ofPoint(ofGetWidth()/2.0f, ofGetHeight()/2.0f);
@@ -62,18 +65,10 @@ void ofApplication::setup(){
 
     // lighting
     _mainLight.setPointLight();
-    _spotlight1.setSpotlight();
-    _spotlight2.setSpotlight();
     
     _mainLight.setSpecularColor(ofColor::fromHsb(0.0f, 0.0f, 255.0f*0.75f));
-    _mainLight.setDiffuseColor(ofColor::fromHsb(0.0f, 0.0f, 255.0f*0.5f));
+    _mainLight.setDiffuseColor(ofColor::fromHsb(0.0f, 0.0f, 255.0f*0.25f));
 
-    _spotlight1.setDiffuseColor(ofColor(0.0f, 255.0f, 0.0f));
-    _spotlight1.setSpecularColor(ofColor(220.0f, 255.0f, 220.0f));
-    
-    _spotlight2.setDiffuseColor(ofColor(115.0f, 0.0f, 255.0f));
-    _spotlight2.setSpecularColor(ofColor(250.0f, 227.0f, 255.0f));
-    
     // box geometry
     setBoxColumns(40);
     _wallOBoxes.setKinectPositionScale(750.0f);
@@ -83,8 +78,6 @@ void ofApplication::setup(){
 //--------------------------------------------------------------
 void ofApplication::update(){
 
-    float elapsedTime = ofGetElapsedTimef();
-    float timePhase = elapsedTime*2.0*M_PI;
     
     // ==================
     //   Update Kinect
@@ -97,85 +90,36 @@ void ofApplication::update(){
             _wallOBoxes.updateFromKinectDepths(_kinect);
         }
     }
-    
-    // ================
-    //  Update cam/lights
-    // ==================
-    static const ofPoint & wallSize = _wallOBoxes.getWallSize();
 
-    if (!_debug){
-        _worldCamera.resetTransform();
-        float camAngle = HALF_PI*sinf(timePhase*0.05f)/2.0f;
-        ofVec3f camPosition = ofVec3f(sinf(camAngle)*CAM_RADIUS, sinf(timePhase*0.04f)*wallSize.y*0.4f, cosf(camAngle)*CAM_RADIUS);
-        _worldCamera.setPosition(camPosition);
-        //_worldCamera.setPosition(cosf(timePhase*0.08f)*wallSize.x*0.3f, sinf(timePhase*0.04f)*wallSize.y*0.4f, 3000.0f);
-        _worldCamera.lookAt(ofVec3f(0,0,0));
-    }
-    
+    //================
+    // Draw to FBOs
+    //=================
+    _wallFbo.begin();
+    ofClear(0, 0, 0, 0);
     _worldCamera.begin();
-    _spotlight1.lookAt(ofVec3f(cosf(0.4f*timePhase)*wallSize.x*0.4f, sinf(0.2f*timePhase)*wallSize.y*0.4f, 0.0f), ofVec3f(0,1,0));
-    _spotlight2.lookAt(ofVec3f(-cosf(0.4f*timePhase)*wallSize.x*0.4f, sinf(0.2f*timePhase)*wallSize.y*0.4f, 0.0f), ofVec3f(0,1,0));
+    positionCamera();
+    positionLights();
+    renderScene();
     _worldCamera.end();
+    _wallFbo.end();
+    
+//    _reflectFbo.begin();
+//    ofClear(0, 0, 0, 0);
+//    _worldCamera.begin();
+//    positionCamera();
+//    positionLights();
+//    renderScene();
+//    _reflectFbo.end();
 }
 
 //--------------------------------------------------------------
 void ofApplication::draw(){
 
-    
-    glEnable(GL_DEPTH_TEST);
-    ofBackground(10);
-        
-    _worldCamera.begin();
-    
-    if (_debug){
-        ofSetColor(220.0f,220.0f,220.0f);
-        ofSphere(_mainLight.getPosition(), 20);
-        ofSetColor(_spotlight1.getDiffuseColor());
-        ofSphere(_spotlight1.getPosition(), 20);
-        ofSetColor(_spotlight2.getDiffuseColor());
-        ofSphere(_spotlight2.getPosition(), 20);
-    }
-
-    _mainLight.enable();
-    _spotlight1.enable();
-    _spotlight2.enable();
-    
-    _wallOBoxes.draw();
-
-//    // translate to center of boxes
-//    float boxSpacing = _boxSize*1.5;
-//    float centerOffsetX = (boxSpacing*(_boxColumns-1) + _boxSize)/2.0f;
-//    float centerOffsetY = (boxSpacing*(_boxRows-1) + _boxSize)/2.0f;
-//    ofTranslate(-centerOffsetX, centerOffsetY);
-//    
-//    for (int y=0; y<_boxRows; y++){
-//        
-//        float yPhase = 0.5*M_PI*y/_boxRows;
-//        
-//        ofSetColor(y*255/_boxRows, 255, 255);
-//        
-//        for (int x=0; x<_boxColumns; x++){
-//            
-//            
-//            float xPhase = 2.0*M_PI*x/_boxColumns;
-//            
-//            ofPushMatrix();
-//            
-//            ofTranslate(x*boxSpacing, -y*boxSpacing, cosf(xPhase + yPhase + timePhase*0.4)*20);
-//            ofBox(_boxSize);
-//            ofPopMatrix();
-//        }
-//    }
-    
-    _mainLight.disable();
-    _spotlight1.disable();
-    _spotlight2.disable();
-    ofDisableLighting();
-    
-    // world camera end
-    _worldCamera.end();
-    
     glDisable(GL_DEPTH_TEST);
+
+    ofBackground(10);
+    _wallFbo.draw(0, 0);
+    //_reflectFbo.draw(0, 0, ofGetWidth(), ofGetHeight());
 
     if (_debug){
         ofDrawBitmapString(ofToString((int) ofGetFrameRate()) + " fps", 10, 20);
@@ -284,5 +228,51 @@ void ofApplication::gotMessage(ofMessage msg){
 
 //--------------------------------------------------------------
 void ofApplication::dragEvent(ofDragInfo dragInfo){ 
+
+}
+
+void ofApplication::renderScene()
+{
+    
+    glEnable(GL_DEPTH_TEST);
+
+    
+    if (_debug){
+        ofSetColor(220.0f,220.0f,220.0f);
+        ofSphere(_mainLight.getPosition(), 20);
+    }
+    
+    ofEnableLighting();
+    _mainLight.enable();
+    _wallOBoxes.draw();
+    _mainLight.disable();
+    ofDisableLighting();
+
+    glDisable(GL_DEPTH_TEST);
+
+}
+
+void ofApplication::positionCamera()
+{
+    if (!_debug){
+        
+        _worldCamera.resetTransform();
+
+        static const ofPoint & wallSize = _wallOBoxes.getWallSize();
+        
+        float elapsedTime = ofGetElapsedTimef();
+        float timePhase = elapsedTime*2.0*M_PI;
+        
+        float camAngle = HALF_PI*sinf(timePhase*0.05f)/2.0f;
+        ofVec3f camPosition = ofVec3f(sinf(camAngle)*CAM_RADIUS, sinf(timePhase*0.04f)*wallSize.y*0.4f, cosf(camAngle)*CAM_RADIUS);
+        _worldCamera.setPosition(camPosition);
+        //_worldCamera.setPosition(cosf(timePhase*0.08f)*wallSize.x*0.3f, sinf(timePhase*0.04f)*wallSize.y*0.4f, 3000.0f);
+        _worldCamera.lookAt(ofVec3f(0,0,0));
+    }
+}
+
+void ofApplication::positionLights()
+{
+    _mainLight.setPosition(0, 0, 2000.0f);
 
 }

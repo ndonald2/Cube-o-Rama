@@ -1,12 +1,12 @@
 //
-//  MeshCube.cpp
+//  MeshObjects.cpp
 //  Cube-o-Rama
 //
 //  Created by Nick Donaldson on 10/6/12.
 //
 //
 
-#include "MeshCube.h"
+#include "MeshObjects.h"
 #include "ofConstants.h"
 #include "ofUtils.h"
 #include "ofGraphics.h"
@@ -169,11 +169,11 @@ void ofMeshCube(float size)
     else{
 		ofScale(size, size, size);
     }
-    
     glEnable(GL_NORMALIZE);
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
-    glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
+    
+    glHint(GL_POLYGON_SMOOTH_HINT, GL_FASTEST);
     glEnable(GL_POLYGON_SMOOTH);
     
     _meshCubeVBO.drawElements(GL_TRIANGLES, _meshCubeVertexData.getNumIndices());
@@ -181,6 +181,7 @@ void ofMeshCube(float size)
     glDisable(GL_POLYGON_SMOOTH);
     glDisable(GL_CULL_FACE);
     glDisable(GL_NORMALIZE);
+    
 
     ofPopMatrix();
 
