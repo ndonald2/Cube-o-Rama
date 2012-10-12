@@ -11,4 +11,5 @@
 #include "ofBaseTypes.h"
 #include "ofxKinect.h"
 
-void kctGetNormalizedDepthInRegions(ofxKinect & kinect, float * const result, int columns, int rows, int smoothing = 0);
+void kctResizeAndNormalizeDepthImage(ofxKinect & kinect, float * const result, int columns, int rows, int smoothing = 0, float lag_ms = 50);
+void kctDrawResizedImage(int x, int y, int w, int h);

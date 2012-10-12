@@ -2,7 +2,7 @@
 #include "BoxEntity.h"
 #include "KinectUtilities.h"
 
-#define CAM_RADIUS  3000.0f
+#define CAM_RADIUS  2200.0f
 
 void ofApplication::setBoxColumns(int boxColumns)
 {
@@ -31,7 +31,7 @@ void ofApplication::setup(){
     
     // enable depth->video image calibration
 	_kinect.setRegistration(true);
-	_kinect.init(false, true, false);
+	_kinect.init(true, true, false);
     _kinect.setDepthClipping(_clipMinMm, _clipMaxMm);
 	//_kinect.open();		// opens first available kinect
 
@@ -94,11 +94,12 @@ void ofApplication::update(){
     //================
     // Draw to FBOs
     //=================
+    positionCamera();
+    positionLights();
+    
     _wallFbo.begin();
     ofClear(0, 0, 0, 0);
     _worldCamera.begin();
-    positionCamera();
-    positionLights();
     renderScene();
     _worldCamera.end();
     _wallFbo.end();
@@ -117,11 +118,17 @@ void ofApplication::draw(){
 
     glDisable(GL_DEPTH_TEST);
 
+    // draw framebuffer(s)
     ofBackground(10);
+    ofPushMatrix();
+    ofScale(1, -1);
+    ofTranslate(0, -ofGetHeight());
     _wallFbo.draw(0, 0);
     //_reflectFbo.draw(0, 0, ofGetWidth(), ofGetHeight());
-
+    ofPopMatrix();
+        
     if (_debug){
+        ofSetColor(255, 255, 255);
         ofDrawBitmapString(ofToString((int) ofGetFrameRate()) + " fps", 10, 20);
         ofDrawBitmapString(ofToString(_boxRows*_boxRows) + " boxes", 10, 35);
         
@@ -129,6 +136,11 @@ void ofApplication::draw(){
         clipStream << "< and > to change min kinect clip: " << _clipMinMm/10 << " cm" << endl;
         clipStream << "[ and ] to change max kinect clip: " << _clipMaxMm/10 << " cm" << endl;
         ofDrawBitmapString(clipStream.str(), 10, 60);
+        
+        if (_kinect.isConnected()){
+            //_kinect.drawDepth(ofGetWidth()-_kinect.width, ofGetHeight()-_kinect.height);
+            kctDrawResizedImage(ofGetWidth()-_kinect.width, ofGetHeight()-_kinect.height, _kinect.width, _kinect.height);
+        }
     }
 }
 
