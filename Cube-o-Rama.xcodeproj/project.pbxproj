@@ -272,14 +272,15 @@
 			path = "Graphics Objects";
 			sourceTree = "<group>";
 		};
-		01241F101624E997007001E2 /* external */ = {
+		01241F101624E997007001E2 /* addons */ = {
 			isa = PBXGroup;
 			children = (
 				01241F111624E997007001E2 /* ofxKinect */,
 				01241F671624E997007001E2 /* ofxOpenCv */,
 			);
-			path = external;
-			sourceTree = "<group>";
+			name = addons;
+			path = ../../../addons;
+			sourceTree = SOURCE_ROOT;
 		};
 		01241F111624E997007001E2 /* ofxKinect */ = {
 			isa = PBXGroup;
@@ -709,7 +710,7 @@
 				E4EB6923138AFD0F00A09F29 /* Project.xcconfig */,
 				E4B69E1C0A3A1BDC003C02F2 /* src */,
 				E4EEC9E9138DF44700A80321 /* openFrameworks */,
-				01241F101624E997007001E2 /* external */,
+				01241F101624E997007001E2 /* addons */,
 				E45BE5980E8CC70C009D7055 /* frameworks */,
 				E4B69B5B0A3A1756003C02F2 /* Cube-o-RamaDebug.app */,
 			);
