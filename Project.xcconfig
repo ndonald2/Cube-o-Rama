@@ -6,7 +6,7 @@ OF_PATH = ../../..
 #include "../../../libs/openFrameworksCompiled/project/osx/CoreOF.xcconfig"
 
 // path to the addons dir
-ADDONS_PATH = external
+ADDONS_PATH = ../../../addons
 
 //ofxOpenCV
 OFX_OPENCV_HEADERS = "$(ADDONS_PATH)/ofxOpenCv/libs/opencv/include/"
